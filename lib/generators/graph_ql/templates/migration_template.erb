@@ -1,0 +1,10 @@
+class <%= @camelize_name %> <%= "<" %> ActiveRecord::Migration[6.1]
+  def change
+    create_table :<%= @snake_case_name + "s" %>, id: :uuid do |t|
+      <% for field in @migration_fields %><%=field%>
+      <% end %>
+
+      t.timestamps
+    end
+  end
+end

@@ -1,0 +1,10 @@
+<%# TEMPLATE TYPE %>
+module Types
+  class <%= @camelize_name %>Type <%= "<" %> Types::BaseObject
+    <% for field in @type_fields %><%=field%>
+    <% end %>
+
+    field :created_at, String, null: true
+    field :updated_at, String, null: true
+  end
+end

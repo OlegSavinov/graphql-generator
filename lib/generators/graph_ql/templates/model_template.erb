@@ -1,0 +1,4 @@
+class <%= @camelize_name %> <%= "<" %> ApplicationRecord
+  <%for field in @model_lines %><%=field%>
+  <% end %>
+end

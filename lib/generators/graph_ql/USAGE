@@ -1,0 +1,18 @@
+Description:
+    Explain the generator
+
+Example:
+    bin/rails g graph_ql email:string! first_name:string! age:int --name user
+
+    This will create:
+        Migration:
+            db/migrate/20220422010101_create_user.rb
+        Model:
+            app/models/user.rb
+        GraphQL:
+          Type:
+            app/graphql/types/user_type.rb
+          Mutation:
+            app/graphql/mutations/create_user.rb
+            app/graphql/mutations/update_user.rb
+            app/graphql/mutations/delete_user.rb
