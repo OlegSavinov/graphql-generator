@@ -1,0 +1,4 @@
+class Types::Inputs::<%= @camelize_name %>InputType <%= "<" %> Types::BaseInputObject
+  <% for field in @update_mutation_lines %><%=field%>
+  <% end %>
+end

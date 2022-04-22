@@ -1,0 +1,25 @@
+module Mutations
+  class Delete<%= @camelize_name %> <%= "<" %> BaseMutation
+    include Guardian
+    argument :id, ID, required: true
+
+    type Types::<%= @camelize_name %>Type
+
+    def resolve(**params)
+      check_authentication!
+      delete_<%= @snake_case_name %>(params)
+    end
+
+   private
+
+   def delete_<%= @snake_case_name %>(params)
+     <%= "#{@snake_case_name} = #{@camelize_name}.find(params[:id])" %>
+
+     if <%=@snake_case_name%>.destroy
+        <%=@snake_case_name%>
+      else
+        raise GraphQL::ExecutionError, "Invalid input: #{<%=@snake_case_name%>.errors.full_messages.join(', ')}"
+      end
+    end
+  end
+end

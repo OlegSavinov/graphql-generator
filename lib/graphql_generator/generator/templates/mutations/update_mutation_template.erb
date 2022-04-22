@@ -1,0 +1,27 @@
+module Mutations
+  class Update<%= @camelize_name %> <%= "<" %> BaseMutation
+    include Guardian
+    argument :id, ID, required: true
+    <% for field in @update_mutation_lines %><%=field%>
+    <% end %>
+
+    type Types::<%= @camelize_name %>Type
+
+    def resolve(**params)
+      check_authentication!
+      update_<%= @snake_case_name %>(params)
+    end
+
+   private
+
+   def update_<%= @snake_case_name %>(params)
+     <%= "#{@snake_case_name} = #{@camelize_name}.find(params[:id])" %>
+
+     if <%=@snake_case_name%>.update(params)
+        <%=@snake_case_name%>
+      else
+        raise GraphQL::ExecutionError, "Invalid input: #{<%=@snake_case_name%>.errors.full_messages.join(', ')}"
+      end
+    end
+  end
+end
