@@ -34,7 +34,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     migration_name = @snake_case_name + ".rb"
     migration_dir = "db/migrate/" + prefix_name + "_" + migration_name
 
-    # template "migration_template.erb", migration_dir
+    template "migration_template.erb", migration_dir
   end
 
   def generate_model
@@ -42,7 +42,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     filename = @snake_case_name + ".rb"
     dir = "app/models/" + filename
 
-    # template "model_template.erb", dir
+    template "model_template.erb", dir
   end
 
   def generate_type
@@ -50,7 +50,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     filename = "create_" + @snake_case_name + ".rb"
     dir = "app/graphql/mutations/" + filename
 
-    # template "create_mutation_template.erb", dir
+    template "create_mutation_template.erb", dir
   end
 
   def generate_type
@@ -58,7 +58,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     filename = @snake_case_name + "_type.rb"
     dir = "app/graphql/types/" + filename
 
-    # template "graphql_types/type_template.erb", dir
+    template "graphql_types/type_template.erb", dir
   end
 
   def generate_create_mutation
@@ -66,7 +66,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     filename = @snake_case_name + ".rb"
     dir = "app/graphql/mutations/create_" + filename
 
-    # template "mutations/create_mutation_template.erb", dir
+    template "mutations/create_mutation_template.erb", dir
   end
 
   def generate_update_mutation
@@ -74,21 +74,21 @@ class GraphQLGenerator < Rails::Generators::NamedBase
     filename = @snake_case_name + ".rb"
     dir = "app/graphql/mutations/update_" + filename
 
-    # template "mutations/update_mutation_template.erb", dir
+    template "mutations/update_mutation_template.erb", dir
   end
 
   def generate_delete_mutation
     filename = @snake_case_name + ".rb"
     dir = "app/graphql/mutations/delete_" + filename
 
-    # template "mutations/delete_mutation_template.erb", dir
+    template "mutations/delete_mutation_template.erb", dir
   end
 
   def generate_input_type
     filename = @snake_case_name + "_input_type.rb"
     dir = "app/graphql/types/inputs/" + filename
 
-    # template "graphql_types/input_type_template.erb", dir
+    template "graphql_types/input_type_template.erb", dir
   end
 
   def parse_variables
@@ -105,7 +105,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
       {name: name, type: type, required: required, array: array, reference: reference}
     }
 
-    print_array(@parsed_fields, "Parsed vars")
+    # print_array(@parsed_fields, "Parsed vars")
   end
 
   def generate_update_mutation_lines
@@ -128,7 +128,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
         str
       }
 
-    print_array(@update_mutation_lines, "Update mutation lines")
+    # print_array(@update_mutation_lines, "Update mutation lines")
   end
 
   def generate_create_mutation_lines
@@ -157,7 +157,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
         str
       }
 
-    print_array(@create_mutation_lines, "CREATE mutation lines")
+    # print_array(@create_mutation_lines, "CREATE mutation lines")
   end
 
   def generate_type_fields
@@ -180,7 +180,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
         str
       }
 
-      print_array(@type_fields, "Type fields")
+      # print_array(@type_fields, "Type fields")
   end
 
   def generate_model_lines
@@ -197,7 +197,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
         str
       }
 
-    print_array(@model_lines, "Model lines")
+    # print_array(@model_lines, "Model lines")
   end
 
   def migration_fields
@@ -211,7 +211,7 @@ class GraphQLGenerator < Rails::Generators::NamedBase
         str
       }
 
-    print_array(@migration_fields, "Migration lines")
+    # print_array(@migration_fields, "Migration lines")
   end
 
   # 
