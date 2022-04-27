@@ -4,7 +4,7 @@ module GraphQLGenerator
 	end
 
 	class MyRailtie < Rails::Railtie
-		generator_path = GraphQLGenerator::root.+'/graphql_generator/generator/graphql_generator.rb'
+		generator_path = GraphQLGenerator::root.+'/graphql_generator/graphql/graphql_generator.rb'
 
 		config.app_generators do
 			require generator_path
