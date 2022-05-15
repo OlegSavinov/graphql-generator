@@ -1,10 +1,10 @@
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "graphql_generator/version"
+require "graphql_helper_generator/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "graphql-generator"
-  spec.version       = GraphqlGenerator::VERSION
+  spec.name          = "graphql_helper_generator"
+  spec.version       = GraphqlHelperGenerator::VERSION
   spec.authors       = ["Oleg Savinov"]
 
   spec.summary       = %q{Creates GraphQL generator}

@@ -1,14 +1,14 @@
 require 'rails/generators'
 require 'fileutils'
 
-class GraphqlGenerator < Rails::Generators::NamedBase
+class GraphqlModelGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('../templates', __dir__)
 
   argument :fields, type: :array, default: [], banner: "field_name:field_type"
 	class_option :name, type: :string
 	class_option :input_type, type: :boolean
 
-	def create_service_file
+	def create_graphql_model_file
     @camelize_name = options[:name].camelize
     @snake_case_name = options[:name].underscore
 
