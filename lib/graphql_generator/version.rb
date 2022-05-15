@@ -1,3 +1,3 @@
-module GraphQLGenerator
-  VERSION = "0.0.6"
+module GraphqlGenerator
+  VERSION = "0.0.7"
 end

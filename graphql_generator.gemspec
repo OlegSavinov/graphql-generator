@@ -4,7 +4,7 @@ require "graphql_generator/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "graphql-generator"
-  spec.version       = GraphQLGenerator::VERSION
+  spec.version       = GraphqlGenerator::VERSION
   spec.authors       = ["Oleg Savinov"]
 
   spec.summary       = %q{Creates GraphQL generator}

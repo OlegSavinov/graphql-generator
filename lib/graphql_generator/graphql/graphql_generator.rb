@@ -1,7 +1,7 @@
 require 'rails/generators'
 require 'fileutils'
 
-class GraphQLGenerator < Rails::Generators::NamedBase
+class GraphqlGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('../templates', __dir__)
 
   argument :fields, type: :array, default: [], banner: "field_name:field_type"
