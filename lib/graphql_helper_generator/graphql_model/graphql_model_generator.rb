@@ -34,7 +34,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     migration_name = @snake_case_name + ".rb"
     migration_dir = "db/migrate/" + prefix_name + "_" + migration_name
 
-    template "migration_template.erb", migration_dir
+    template "templates/migration_template.erb", migration_dir
   end
 
   def generate_model
