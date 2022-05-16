@@ -11,12 +11,13 @@ class GraphQlGenerator < Rails::Generators::NamedBase
 
     parse_variables
 
-    generate_migration
-    generate_type
-    generate_model
-    generate_create_mutation
-    generate_update_mutation
-    generate_delete_mutation
+    # generate_migration
+    # generate_type
+    # generate_model
+    # generate_create_mutation
+    # generate_update_mutation
+    # generate_delete_mutation
+    generate_create_test
 
     if options[:input_type].present? then generate_input_type end
 
@@ -88,6 +89,14 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     template "graphql_types/input_type_template.erb", dir
   end
 
+  def generate_create_test
+    generate_create_test_lines
+    filename = "create_" + @snake_case_name + "_spec.rb"
+    dir = "spec/requests/" + filename
+
+    template "tests/create_test.erb", dir
+  end
+
   def parse_variables
     @parsed_fields =
     fields.map{|field|
@@ -126,6 +135,27 @@ class GraphQlGenerator < Rails::Generators::NamedBase
       }
 
     # print_array(@update_mutation_lines, "Update mutation lines")
+  end
+
+  def generate_create_test_lines
+    @create_test_define_line =
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        str = "$" + name + ": " + cast_to_graphql(field)
+        if field[:required].present? then str += "!" end
+        str
+      }.join(', ')
+
+    @create_test_input_line =
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        str = name + ": " + "$" + name
+      }.join(', ')
+
+    puts @create_test_define_line + " <<<< DEFINE"
+    puts @create_test_input_line + " <<<< INPUT"
   end
 
   def generate_create_mutation_lines
@@ -237,6 +267,7 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     if type == 'Datetime' then type = 'String'
     elsif type == 'Json' then type = 'GraphQL::Types::JSON'
     elsif type == 'Boolean' then type = 'GraphQL::Types::Boolean'
+    elsif type == 'Integer' then type = 'Int'
     end
     type
   end
