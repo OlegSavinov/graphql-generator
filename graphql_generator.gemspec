@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "graphql_helper_generator/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "graphql_helper_generator"
+  spec.name          = "graphql-generator"
   spec.version       = GraphqlHelperGenerator::VERSION
   spec.authors       = ["Oleg Savinov"]
 
