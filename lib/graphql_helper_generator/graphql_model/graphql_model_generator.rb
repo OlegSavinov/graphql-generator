@@ -20,6 +20,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     generate_create_mutation
     generate_update_mutation
     generate_delete_mutation
+    generate_create_test_lines
 
     if options[:input_type].present? then generate_input_type end
 
@@ -82,6 +83,14 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     dir = "app/graphql/mutations/delete_" + filename
 
     template "mutations/delete_mutation_template.erb", dir
+  end
+
+  def generate_create_test
+    generate_create_test_lines
+    filename = "create_" + @snake_case_name + "_spec.rb"
+    dir = "spec/requests/" + filename
+
+    template "tests/create_test.erb", dir
   end
 
   def generate_input_type
@@ -158,6 +167,27 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
       }
 
     # print_array(@create_mutation_lines, "CREATE mutation lines")
+  end
+
+  def generate_create_test_lines
+    @create_test_define_line =
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        str = "$" + name + ": " + cast_to_graphql(field)
+        if field[:required].present? then str += "!" end
+        str
+      }.join(', ')
+
+    @create_test_input_line =
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        str = name + ": " + "$" + name
+      }.join(', ')
+
+    puts @create_test_define_line + " <<<< DEFINE"
+    puts @create_test_input_line + " <<<< INPUT"
   end
 
   def generate_type_fields
