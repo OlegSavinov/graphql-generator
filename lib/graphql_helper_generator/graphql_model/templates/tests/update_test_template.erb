@@ -10,6 +10,7 @@ RSpec.describe 'Update<%= @camelize_name %>', type: :request do
             @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
               var = field[:name].camelize
               var[0] = var[0].downcase
+              if field[:reference].present then var += ' { id } ' end
               var
             }.join("\n          ")
           %>
