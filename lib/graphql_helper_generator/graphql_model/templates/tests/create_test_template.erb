@@ -1,4 +1,4 @@
-RSpec.describe 'Create<%= @camelize_name %>', type: :request do
+RSpec.describe 'Create<%= @camelize_name %>', type: :request, current: true do
   include_context 'authenticated user'
 
   def query()
