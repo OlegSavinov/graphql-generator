@@ -166,7 +166,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         name = field[:name].camelize
         name[0] = name[0].downcase
         str = "$" + name + ": " + cast_to_graphql_input(field)
-        if field[:array].present? then str = '[' + str + ']' enD
+        if field[:array].present? then str = '[' + str + ']' end
         if field[:required].present? then str += "!" end
         str
       }.join(', ')
