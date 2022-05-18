@@ -3,8 +3,8 @@ RSpec.describe 'Update<%= @camelize_name %>', type: :request do
 
   def query()
   <%= "  <<~GQL" %>
-    mutation Update<%= @camelize_name %>(<%= @update_test_define_line %>) {
-      update<%= @camelize_name %>(input: {<%= @update_test_input_line %>}) {
+    mutation Update<%= @camelize_name %>($id: ID!, <%= @update_test_define_line %>) {
+      update<%= @camelize_name %>(input: {id: $id, <%= @update_test_input_line %>}) {
           id
           <%= 
             @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
@@ -22,7 +22,8 @@ RSpec.describe 'Update<%= @camelize_name %>', type: :request do
   it 'update_<%= @snake_case_name %> success' do
     <%= @snake_case_name%> = create(:<%= @snake_case_name %>)
     updated_<%= @snake_case_name%> = build(:updated_<%= @snake_case_name %>)
-    variables = as_json(updated_<%= @snake_case_name%>)
+    updated_<%= @snake_case_name%> = <%= @snake_case_name %>.id
+    variables = updated_<%= @snake_case_name%>.to_json
 
     json = graphql(query, variables: variables)
     data = json['update<%= @camelize_name %>']
