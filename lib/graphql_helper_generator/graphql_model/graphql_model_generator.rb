@@ -165,7 +165,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
       @parsed_fields.map{|field|
         name = field[:name].camelize
         name[0] = name[0].downcase
-        if field[:type] == 'references' then name += 'Id'
+        if field[:type] == 'references' then name += 'Id' end
         str = "$" + name + ": " 
         type = cast_to_graphql_input(field)
         if field[:array].present? then type = '[' + type + ']' end
