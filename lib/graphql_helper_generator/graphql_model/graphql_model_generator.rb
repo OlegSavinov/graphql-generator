@@ -50,14 +50,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
   end
 
   def generate_type
-    generate_create_mutation_lines
-    filename = "create_" + @snake_case_name + ".rb"
-    dir = "app/graphql/mutations/" + filename
-
-    template "create_mutation_template.erb", dir
-  end
-
-  def generate_type
     generate_type_fields
     filename = @snake_case_name + "_type.rb"
     dir = "app/graphql/types/" + filename
@@ -124,7 +116,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
   end
 
   def generate_delete_test
-    # generate_update_test_lines
     filename = "delete_" + @snake_case_name + "_spec.rb"
     dir = "spec/requests/" + filename
 
@@ -167,8 +158,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         str += type + ', required: false'
         str
       }
-
-    # print_array(@update_mutation_lines, "Update mutation lines")
   end
 
   def generate_create_test_lines
@@ -187,9 +176,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         name[0] = name[0].downcase
         str = name + ": " + "$" + name
       }.join(', ')
-
-    # puts @create_test_define_line + " <<<< DEFINE"
-    # puts @create_test_input_line + " <<<< INPUT"
   end
 
   def generate_update_test_lines
@@ -207,9 +193,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         name[0] = name[0].downcase
         str = name + ": " + "$" + name
       }.join(', ')
-
-    # puts @create_test_define_line + " <<<< DEFINE"
-    # puts @create_test_input_line + " <<<< INPUT"
   end
 
 
@@ -238,8 +221,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         end
         str
       }
-
-    # print_array(@create_mutation_lines, "CREATE mutation lines")
   end
 
   def generate_type_fields
@@ -261,8 +242,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:required].present? then str += ', null: false' end
         str
       }
-
-      # print_array(@type_fields, "Type fields")
   end
 
   def generate_model_lines
@@ -275,11 +254,8 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
           str += field[:reference].underscore
         end
 
-        # str += ', dependent: :destroy'
         str
       }
-
-    # print_array(@model_lines, "Model lines")
   end
 
   def migration_fields
@@ -292,8 +268,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:required].present? then str += ', null: false' end
         str
       }
-
-    # print_array(@migration_fields, "Migration lines")
   end
 
   # 
