@@ -1,0 +1,38 @@
+RSpec.describe 'Update<%= @camelize_name %>', type: :request do
+  include_context 'authenticated user'
+
+  def query()
+  <%= "  <<~GQL" %>
+    mutation Update<%= @camelize_name %>(<%= @update_test_define_line %>) {
+      update<%= @camelize_name %>(input: {<%= @update_test_input_line %>}) {
+          id
+          <%= 
+            @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
+              var = field[:name].camelize
+              var[0] = var[0].downcase
+              var
+            }.join("\n          ")
+          %>
+        }
+      }
+    GQL
+  end
+
+  it 'update_<%= @snake_case_name %> success' do
+    <%= @snake_case_name%> = create(:<%= @snake_case_name %>)
+    updated_<%= @snake_case_name%> = build(:updated_<%= @snake_case_name %>)
+    variables = as_json(updated_<%= @snake_case_name%>)
+
+    json = graphql(query, variables: variables)
+    data = json['update<%= @camelize_name %>']
+
+    expect(data).to include('id' => <%= @snake_case_name%>.id)
+    <%= 
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
+        var = field[:name].camelize
+        var[0] = var[0].downcase
+        "expect(data).to include('#{var}' => updated_#{@snake_case_name}.#{field[:name]})"
+      }.join("\n    ")
+    %>
+  end
+end
