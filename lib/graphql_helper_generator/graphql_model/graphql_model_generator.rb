@@ -162,11 +162,14 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
 
   def generate_create_test_lines
     @create_test_define_line =
-      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+      @parsed_fields.map{|field|
         name = field[:name].camelize
         name[0] = name[0].downcase
-        str = "$" + name + ": " + cast_to_graphql_input(field)
-        if field[:array].present? then str = '[' + str + ']' end
+        if field[:type] == 'references' then name += 'Id'
+        str = "$" + name + ": " 
+        type = cast_to_graphql_input(field)
+        if field[:array].present? then type = '[' + type + ']' end
+        str += type
         if field[:required].present? then str += "!" end
         str
       }.join(', ')
@@ -228,14 +231,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
   def generate_type_fields
       @type_fields =
       @parsed_fields.map{|field|
-        str = 'field :'
-        if field[:reference].present?
-          str += field[:name].underscore + "s"
-        else
-          str += field[:name].underscore
-        end
-
-        str += ", "
+        str = 'field :' + field[:name].underscore + ', '
 
         type = cast_to_graphql(field)
         if field[:reference].present? || field[:type] == 'references' then type = field[:name].camelize + "Type" end
@@ -314,6 +310,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     elsif type == 'Json' then type = 'JSON'
     elsif type == 'Boolean' then type = 'Boolean'
     elsif type == 'Integer' then type = 'Int'
+    elsif type == 'References' then type = 'ID'
     end
     type
   end
