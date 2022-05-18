@@ -20,12 +20,19 @@ RSpec.describe 'Create<%= @camelize_name %>', type: :request do
   end
 
   it 'create_<%= @snake_case_name %> success' do
-    <%= @snake_case_name%> = build(:<%= @snake_case_name %>)
+  <%= @snake_case_name%> = build(:<%= @snake_case_name %>)
     variables = as_json(<%= @snake_case_name%>)
 
     json = graphql(query, variables: variables)
     data = json['create<%= @camelize_name %>']
 
     expect(data).to include('id' => be_present)
+    <%= 
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
+        var = field[:name].camelize
+        var[0] = var[0].downcase
+        "expect(data).to include('#{var}' => #{@snake_case_name}.#{field[:name]})"
+      }.join("\n    ")
+    %>
   end
 end

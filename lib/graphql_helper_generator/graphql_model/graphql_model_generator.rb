@@ -175,9 +175,10 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
       }.join(', ')
 
     @create_test_input_line =
-      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+      @parsed_fields.map{|field|
         name = field[:name].camelize
         name[0] = name[0].downcase
+        if field[:type] == 'references' then name += 'Id' end
         str = name + ": " + "$" + name
       }.join(', ')
   end
@@ -253,7 +254,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         .map{|field|
         str = 'belongs_to :'
         if field[:reference].present?
-          str += field[:reference].underscore
+          str += field[:name].underscore
         end
 
         str
