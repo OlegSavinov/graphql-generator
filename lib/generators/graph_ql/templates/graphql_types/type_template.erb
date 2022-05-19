@@ -1,6 +1,6 @@
-<%# TEMPLATE TYPE %>
 module Types
   class <%= @camelize_name %>Type <%= "<" %> Types::BaseObject
+    field :id, ID, null: false
     <% for field in @type_fields %><%=field%>
     <% end %>
 

@@ -1,0 +1,39 @@
+RSpec.describe 'Create<%= @camelize_name %>', type: :request, current: true do
+  include_context 'authenticated user'
+
+  def query()
+  <%= "  <<~GQL" %>
+    mutation Create<%= @camelize_name %>(<%= @create_test_define_line %>) {
+      create<%= @camelize_name %>(input: {<%= @create_test_input_line %>}) {
+          id
+          <%= 
+            @parsed_fields.map{|field| 
+              var = field[:name].camelize
+              var[0] = var[0].downcase
+              if field[:reference].present? then var += ' { id } ' end
+              var
+            }.join("\n          ")
+          %>
+        }
+      }
+    GQL
+  end
+
+  it 'create_<%= @snake_case_name %> success' do
+  <% for field in @create_reference %><%=field%> <% end %>
+  <%= @snake_case_name%> = build(:<%= @snake_case_name %> <%= @include_references.map{|x| x}%>)
+    variables = as_json(<%= @snake_case_name%>)
+
+    json = graphql(query, variables: variables)
+    data = json['create<%= @camelize_name %>']
+
+    expect(data).to include('id' => be_present)
+    <%= 
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field| 
+        var = field[:name].camelize
+        var[0] = var[0].downcase
+        "expect(data).to include('#{var}' => #{@snake_case_name}.#{field[:name]})"
+      }.join("\n    ")
+    %>
+  end
+end

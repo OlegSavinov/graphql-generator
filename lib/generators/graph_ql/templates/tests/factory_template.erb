@@ -1,0 +1,55 @@
+FactoryBot.define do
+  factory :<%= @snake_case_name %> do
+    <%= 
+      @parsed_fields.map{|field| 
+        value =
+          case field[:type]
+          when "string"
+            " \"My #{field[:name]} \" + rand(1..10000).to_s"
+          when "integer"
+            "rand(1..10000)"
+          when "boolean"
+            "false"
+          when "datetime"
+            "(Time.now + #{rand(1..5)}.hours).to_s"
+          when "json"
+            {hello: :world, new: 1}
+          when "references"
+            "create(:#{field[:name]})"
+          else
+            'nil'
+          end
+
+        if field[:array].present? and !field[:reference].present? then value = "[" + value + "]" end
+        "#{field[:name]} { #{value} }"
+      }.join("\n    ")
+    %>
+
+    factory :updated_<%= @snake_case_name %> do
+    <%= 
+      @parsed_fields.map{|field| 
+        value =
+          case field[:type]
+          when "string"
+            " \"My #{field[:name]} updated \" + rand(1..10000).to_s"
+          when "integer"
+            "rand(1..10000)"
+          when "boolean"
+            "false"
+          when "datetime"
+            "(Time.now + #{rand(1..5)}.hours).to_s"
+          when "json"
+            {hello: :updated_world, updated: 100}
+          when "references"
+            "create(:#{field[:name]})"
+          else
+            'nil'
+          end
+
+        if field[:array].present? and !field[:reference].present? then value = "[" + value + "]" end
+        "  #{field[:name]} { #{value} }"
+      }.join("\n    ")
+    %>
+    end
+  end
+end

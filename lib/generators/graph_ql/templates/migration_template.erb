@@ -1,6 +1,13 @@
-class <%= @camelize_name %> <%= "<" %> ActiveRecord::Migration[6.1]
+class Create<%= @camelize_name %> <%= "<" %> ActiveRecord::Migration[6.1]
   def change
-    create_table :<%= @snake_case_name + "s" %>, id: :uuid do |t|
+    create_table :<%= 
+    len = @snake_case_name.length-1
+    if @snake_case_name[len] == 'y'
+      filename = @snake_case_name[0..-1] + "ies"
+    else
+      filename = @snake_case_name + "s"
+    end
+ %>, id: :uuid do |t|
       <% for field in @migration_fields %><%=field%>
       <% end %>
 
