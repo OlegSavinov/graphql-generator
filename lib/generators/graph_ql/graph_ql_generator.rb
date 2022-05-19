@@ -11,13 +11,16 @@ class GraphQlGenerator < Rails::Generators::NamedBase
 
     parse_variables
 
-    # generate_migration
-    # generate_type
-    # generate_model
-    # generate_create_mutation
-    # generate_update_mutation
-    # generate_delete_mutation
+    generate_migration
+    generate_type
+    generate_model
+    generate_create_mutation
+    generate_update_mutation
+    generate_delete_mutation
+    generate_factory
     generate_create_test
+    generate_update_test
+    generate_delete_test
 
     if options[:input_type].present? then generate_input_type end
 
@@ -30,7 +33,7 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     migration_fields
     prefix_name = Time.now.utc.to_s.delete_suffix(' UTC').delete('^0-9')
     migration_name = @snake_case_name + ".rb"
-    migration_dir = "db/migrate/" + prefix_name + "_" + migration_name
+    migration_dir = "db/migrate/" + prefix_name + "_create_" + migration_name
 
     template "migration_template.erb", migration_dir
   end
@@ -41,14 +44,6 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     dir = "app/models/" + filename
 
     template "model_template.erb", dir
-  end
-
-  def generate_type
-    generate_create_mutation_lines
-    filename = "create_" + @snake_case_name + ".rb"
-    dir = "app/graphql/mutations/" + filename
-
-    template "create_mutation_template.erb", dir
   end
 
   def generate_type
@@ -89,12 +84,40 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     template "graphql_types/input_type_template.erb", dir
   end
 
+  def generate_factory
+    len = @snake_case_name.length-1
+    if @snake_case_name[len] == 'y'
+      filename = @snake_case_name[0..-1] + "ies.rb"
+    else
+      filename = @snake_case_name + "s.rb"
+    end
+    dir = "spec/factories/" + filename
+
+    template "tests/factory_template.erb", dir
+  end
+
   def generate_create_test
     generate_create_test_lines
+    generate_references_creation
     filename = "create_" + @snake_case_name + "_spec.rb"
     dir = "spec/requests/" + filename
 
-    template "tests/create_test.erb", dir
+    template "tests/create_test_template.erb", dir
+  end
+
+  def generate_update_test
+    generate_update_test_lines
+    filename = "update_" + @snake_case_name + "_spec.rb"
+    dir = "spec/requests/" + filename
+
+    template "tests/update_test_template.erb", dir
+  end
+
+  def generate_delete_test
+    filename = "delete_" + @snake_case_name + "_spec.rb"
+    dir = "spec/requests/" + filename
+
+    template "tests/delete_test_template.erb", dir
   end
 
   def parse_variables
@@ -110,8 +133,6 @@ class GraphQlGenerator < Rails::Generators::NamedBase
 
       {name: name, type: type, required: required, array: array, reference: reference}
     }
-
-    # print_array(@parsed_fields, "Parsed vars")
   end
 
   def generate_update_mutation_lines
@@ -119,7 +140,7 @@ class GraphQlGenerator < Rails::Generators::NamedBase
       @parsed_fields.map{|field|
         str = 'argument :'
         if field[:reference].present? || field[:type] == 'references'
-          str = '# ' + str + field[:name].underscore + "s"
+          str = '# ' + str + field[:name].underscore + "_id"
         else
           str += field[:name].underscore
         end
@@ -128,42 +149,60 @@ class GraphQlGenerator < Rails::Generators::NamedBase
 
         type = cast_to_graphql(field)
           
-        if field[:reference].present? then type = field[:name].camelize + "InputType" end
+        if field[:reference].present? then type = "ID" end
         if field[:array].present? then type = "[" + type + "]" end
         str += type + ', required: false'
         str
       }
-
-    # print_array(@update_mutation_lines, "Update mutation lines")
   end
 
   def generate_create_test_lines
     @create_test_define_line =
-      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+      @parsed_fields.map{|field|
         name = field[:name].camelize
         name[0] = name[0].downcase
-        str = "$" + name + ": " + cast_to_graphql(field)
+        if field[:type] == 'references' then name += 'Id' end
+        str = "$" + name + ": " 
+        type = cast_to_graphql_input(field)
+        if field[:array].present? then type = '[' + type + ']' end
+        str += type
         if field[:required].present? then str += "!" end
         str
       }.join(', ')
 
     @create_test_input_line =
+      @parsed_fields.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        if field[:type] == 'references' then name += 'Id' end
+        str = name + ": " + "$" + name
+      }.join(', ')
+  end
+
+  def generate_update_test_lines
+    @update_test_define_line =
+      @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
+        name = field[:name].camelize
+        name[0] = name[0].downcase
+        str = "$" + name + ": " + cast_to_graphql_input(field)
+        str
+      }.join(', ')
+
+    @update_test_input_line =
       @parsed_fields.filter{|f| !f[:reference].present? }.map{|field|
         name = field[:name].camelize
         name[0] = name[0].downcase
         str = name + ": " + "$" + name
       }.join(', ')
-
-    puts @create_test_define_line + " <<<< DEFINE"
-    puts @create_test_input_line + " <<<< INPUT"
   end
+
 
   def generate_create_mutation_lines
     @create_mutation_lines =
       @parsed_fields.map{|field|
         str = 'argument :'
         if field[:reference].present? || field[:type] == 'references'
-          str = '# ' + str + field[:name].underscore + "s"
+          str = str + field[:name].underscore + "_id"
         else
           str += field[:name].underscore
         end
@@ -172,42 +211,35 @@ class GraphQlGenerator < Rails::Generators::NamedBase
 
         type = cast_to_graphql(field)
 
-        if field[:reference].present? then type = field[:name].camelize + "InputType" end
+        # if field[:reference].present? then type = field[:name].camelize + "InputType" end
+        if field[:reference].present? then type = "ID" end
         if field[:array].present? then type = "[" + type + "]" end
 
         str += type
-        if field[:required].present?
-          str += ', required: true'
-        else
-          str += ', required: false'
-        end
+        str += add_required(field)
         str
       }
-
-    # print_array(@create_mutation_lines, "CREATE mutation lines")
   end
 
   def generate_type_fields
       @type_fields =
       @parsed_fields.map{|field|
-        str = 'field :'
-        if field[:reference].present?
-          str += field[:name].underscore + "s"
-        else
-          str += field[:name].underscore
-        end
-
-        str += ", "
+        str = 'field :' + field[:name].underscore + ', '
 
         type = cast_to_graphql(field)
         if field[:reference].present? || field[:type] == 'references' then type = field[:name].camelize + "Type" end
         if field[:array].present? then type = "[" + type + "]" end
         str += type
-        if field[:required].present? then str += ', null: false' end
-        str
-      }
+        str += add_null(field)
 
-      # print_array(@type_fields, "Type fields")
+        if field[:type] == 'references'
+          ref_id = 'field :' + field[:name].underscore + '_id, ID'
+          ref_id += add_null(field)
+          [str, ref_id]
+        else 
+          str
+        end
+      }.flatten
   end
 
   def generate_model_lines
@@ -215,16 +247,13 @@ class GraphQlGenerator < Rails::Generators::NamedBase
       @parsed_fields
         .filter{|field| field[:type] == 'references'}
         .map{|field|
-        str = 'has_many :'
+        str = 'belongs_to :'
         if field[:reference].present?
-          str += field[:reference].underscore
+          str += field[:name].underscore
         end
 
-        str += ', dependent: :destroy'
         str
       }
-
-    # print_array(@model_lines, "Model lines")
   end
 
   def migration_fields
@@ -237,8 +266,17 @@ class GraphQlGenerator < Rails::Generators::NamedBase
         if field[:required].present? then str += ', null: false' end
         str
       }
+  end
 
-    # print_array(@migration_fields, "Migration lines")
+  def generate_references_creation
+    references = @parsed_fields.filter{|x| x[:type] == 'references'}
+    @create_reference =
+      references.map{|field|
+        "#{field[:name]} = create(:#{field[:name]})\n"
+      }
+
+    @include_references =
+      references.map{|field| ", #{field[:name]}: #{field[:name]}"}
   end
 
   # 
@@ -272,6 +310,34 @@ class GraphQlGenerator < Rails::Generators::NamedBase
     type
   end
 
+  def cast_to_graphql_input(field)
+    type = field[:type].camelize
+
+    if type == 'Datetime' then type = 'String'
+    elsif type == 'Json' then type = 'JSON'
+    elsif type == 'Boolean' then type = 'Boolean'
+    elsif type == 'Integer' then type = 'Int'
+    elsif type == 'References' then type = 'ID'
+    end
+    type
+  end
+
+  def add_required(field)
+    if field[:required].present?
+      ', required: true'
+    else
+      ', required: false'
+    end
+  end
+
+  def add_null(field)
+    if field[:required].present? then 
+      ', null: false' 
+    else 
+      ', null: true'
+    end
+  end
+
   def handle_reference(options, type)
     if not type == 'references' 
       return false
@@ -290,9 +356,9 @@ class GraphQlGenerator < Rails::Generators::NamedBase
   def print_note
     puts "\n\nSucces!"
     puts "Add these lines to your app/graphql/types/mutation_type.rb\n\n"
-    puts "field :create_#{@snake_case_name}, mutation: mutations::Create#{@camelize_name}"
-    puts "field :update_#{@snake_case_name}, mutation: mutations::Update#{@camelize_name}"
-    puts "field :delete_#{@snake_case_name}, mutation: mutations::Delete#{@camelize_name}"
+    puts "field :create_#{@snake_case_name}, mutation: Mutations::Create#{@camelize_name}"
+    puts "field :update_#{@snake_case_name}, mutation: Mutations::Update#{@camelize_name}"
+    puts "field :delete_#{@snake_case_name}, mutation: Mutations::Delete#{@camelize_name}"
     puts "\n"
   end
 end
