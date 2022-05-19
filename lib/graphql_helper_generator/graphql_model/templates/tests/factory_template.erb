@@ -10,8 +10,12 @@ FactoryBot.define do
             "rand(1..10000)"
           when "boolean"
             "false"
+          when "datetime"
+            "(Time.now + #{rand(1..5)}.hours).to_s"
           when "json"
             {hello: :world, new: 1}
+          when "references"
+            "create(:#{field[:name]})"
           else
             'nil'
           end
@@ -32,8 +36,12 @@ FactoryBot.define do
             "rand(1..10000)"
           when "boolean"
             "false"
+          when "datetime"
+            "(Time.now + #{rand(1..5)}.hours).to_s"
           when "json"
             {hello: :updated_world, updated: 100}
+          when "references"
+            "create(:#{field[:name]})"
           else
             'nil'
           end

@@ -20,7 +20,8 @@ RSpec.describe 'Create<%= @camelize_name %>', type: :request, current: true do
   end
 
   it 'create_<%= @snake_case_name %> success' do
-  <%= @snake_case_name%> = build(:<%= @snake_case_name %>)
+    <% for field in @create_reference %><%=field%> <% end %>
+    <%= @snake_case_name%> = build(:<%= @snake_case_name %> <%= @include_references.map{|x| x}.join%>)
     variables = as_json(<%= @snake_case_name%>)
 
     json = graphql(query, variables: variables)

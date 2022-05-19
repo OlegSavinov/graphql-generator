@@ -23,7 +23,7 @@ RSpec.describe 'Update<%= @camelize_name %>', type: :request, current: true do
     <%= @snake_case_name%> = create(:<%= @snake_case_name %>)
     updated_<%= @snake_case_name%> = build(:updated_<%= @snake_case_name %>)
     updated_<%= @snake_case_name%>.id = <%= @snake_case_name %>.id
-    variables = updated_<%= @snake_case_name%>.to_json
+    variables = as_json(updated_<%= @snake_case_name%>)
 
     json = graphql(query, variables: variables)
     data = json['update<%= @camelize_name %>']

@@ -101,6 +101,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
 
   def generate_create_test
     generate_create_test_lines
+    generate_references_creation
     filename = "create_" + @snake_case_name + "_spec.rb"
     dir = "spec/requests/" + filename
 
@@ -135,8 +136,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
 
       {name: name, type: type, required: required, array: array, reference: reference}
     }
-
-    # print_array(@parsed_fields, "Parsed vars")
   end
 
   def generate_update_mutation_lines
@@ -144,7 +143,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
       @parsed_fields.map{|field|
         str = 'argument :'
         if field[:reference].present? || field[:type] == 'references'
-          str = '# ' + str + field[:name].underscore + "s"
+          str = '# ' + str + field[:name].underscore + "_id"
         else
           str += field[:name].underscore
         end
@@ -153,7 +152,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
 
         type = cast_to_graphql(field)
           
-        if field[:reference].present? then type = field[:name].camelize + "InputType" end
+        if field[:reference].present? then type = "ID" end
         if field[:array].present? then type = "[" + type + "]" end
         str += type + ', required: false'
         str
@@ -220,11 +219,7 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:array].present? then type = "[" + type + "]" end
 
         str += type
-        if field[:required].present?
-          str += ', required: true'
-        else
-          str += ', required: false'
-        end
+        str += add_required(field)
         str
       }
   end
@@ -238,13 +233,16 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:reference].present? || field[:type] == 'references' then type = field[:name].camelize + "Type" end
         if field[:array].present? then type = "[" + type + "]" end
         str += type
-        if field[:required].present? then 
-          str += ', null: false' 
+        str += add_null(field)
+
+        if field[:type] == 'references'
+          ref_id = 'field :' + field[:name].underscore + '_id, ID'
+          ref_id += add_null(field)
+          [str, ref_id]
         else 
-          str += ', null: true'
+          str
         end
-        str
-      }
+      }.flatten
   end
 
   def generate_model_lines
@@ -271,6 +269,17 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:required].present? then str += ', null: false' end
         str
       }
+  end
+
+  def generate_references_creation
+    references = @parsed_fields.filter{|x| x[:type] == 'references'}
+    @create_reference =
+      references.map{|field|
+        "#{field[:name]} = create(:#{field[:name]})\n"
+      }
+
+    @include_references =
+      references.map{|field| ", #{field[:name]}: #{field[:name]}"}
   end
 
   # 
@@ -314,6 +323,22 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     elsif type == 'References' then type = 'ID'
     end
     type
+  end
+
+  def add_required(field)
+    if field[:required].present?
+      ', required: true'
+    else
+      ', required: false'
+    end
+  end
+
+  def add_null(field)
+    if field[:required].present? then 
+      ', null: false' 
+    else 
+      ', null: true'
+    end
   end
 
   def handle_reference(options, type)
