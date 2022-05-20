@@ -167,7 +167,6 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
         if field[:type] == 'references' then name += 'Id' end
         str = "$" + name + ": " 
         type = cast_to_graphql_input(field)
-        if field[:array].present? then type = '[' + type + ']' end
         str += type
         if field[:required].present? then str += "!" end
         str
@@ -322,6 +321,9 @@ class GraphqlModelGenerator < Rails::Generators::NamedBase
     elsif type == 'Integer' then type = 'Int'
     elsif type == 'References' then type = 'ID'
     end
+
+    if field[:array].present? then type = '['+type+']' end 
+
     type
   end
 
