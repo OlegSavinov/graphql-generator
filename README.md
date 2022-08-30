@@ -33,6 +33,7 @@ This will generate
 
 Follow instructions, add mutation names in your 'mutation_type.rb' file
 ### Note
+* add as_json function to your test environment from lib/graphql_helper_generator/graphql_model/as_json
 * '!' defines if the field is required
 * 'ref' param will create field author with reference to table users. If names are the same, you may not specity reference table
 * 'string, str' note, that both string and str can be used, as well as int:integer, bool:boolean

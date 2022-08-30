@@ -1,0 +1,28 @@
+def as_json(model, *keys)
+  attributes = model.attributes
+
+  attributes =
+    if keys.empty?
+      attributes
+    else
+      keys = keys.map(&:to_s)
+      attributes.select do |key|
+        keys.include?(key)
+      end
+    end
+
+  attributes =
+    attributes
+      .transform_keys { |k| k.camelcase(:lower) }
+      .transform_values do |v|
+        if v.is_a?(ActiveSupport::TimeWithZone)
+          v.to_s
+        elsif v.respond_to?(:attributes)
+          as_json(v)
+        else
+          v
+        end
+      end
+
+  attributes
+end
