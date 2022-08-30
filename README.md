@@ -36,7 +36,7 @@ Follow instructions, add mutation names in your 'mutation_type.rb' file
 * '!' defines if the field is required
 * 'ref' param will create field author with reference to table users. If names are the same, you may not specity reference table
 * 'string, str' note, that both string and str can be used, as well as int:integer, bool:boolean
-Additional parameter '--input_type true' will create input type of the model
+* Additional parameter '--input_type true' will create input type of the model
 
 Run migration
 
