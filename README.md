@@ -17,3 +17,30 @@ And then execute:
 Or install it yourself as:
 
     $ gem install graphql-generator
+
+## Usage
+
+To run generator of model Book, run:
+
+    $ rails generate graphql_model a title:string! num_pages:int! color:str is_for_sale:bool! author:ref!:users --name book
+
+This will generate
+
+1. migration
+2. model
+3. GraphQL type
+4. GraphQL mutations: create, update, delete
+5. Facotry
+6. Rspec tests for mutations: create, update, delect
+
+Follow instructions, add mutation names in your 'mutation_type.rb' file
+
+Additional parameter '--input_type true' will create input type of the model
+
+Run migration
+
+    $ rails db:migrate
+
+Run tests
+
+    $ rspec --tag current
