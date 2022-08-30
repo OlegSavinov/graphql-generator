@@ -1,7 +1,5 @@
 # GraphQLGenerator
 
-> This gem creates a Service Generator so you can use it as a part of rails generators.
-
 ## Installation
 
 Add this line to your application's Gemfile:
