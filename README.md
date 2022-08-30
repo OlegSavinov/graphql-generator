@@ -34,6 +34,7 @@ This will generate
 6. Rspec tests for mutations: create, update, delete
 
 Follow instructions, add mutation names in your 'mutation_type.rb' file
+### Note
 * '!' defines if the field is required
 * 'ref' param will create field author with reference to table users. If names are the same, you may not specity reference table
 * 'string, str' note, that both string and str can be used, as well as int:integer, bool:boolean
